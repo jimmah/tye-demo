@@ -1,0 +1,4 @@
+services:
+- name: frontend
+  project: src/Weather.Frontend/Weather.Frontend.csproj
+
