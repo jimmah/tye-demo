@@ -1,4 +1,5 @@
 services:
 - name: frontend
   project: src/Weather.Frontend/Weather.Frontend.csproj
-
+- name: backend
+  project: src/Weather.Backend/Weather.Backend.csproj

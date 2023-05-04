@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Weather.Frontend", "src\Weather.Frontend\Weather.Frontend.csproj", "{585B606E-155B-4DCB-8EDA-706B1F3B86AE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Weather.Backend", "src\Weather.Backend\Weather.Backend.csproj", "{9231AE67-F0DA-44F7-AA58-633F28599A93}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{585B606E-155B-4DCB-8EDA-706B1F3B86AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{585B606E-155B-4DCB-8EDA-706B1F3B86AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{585B606E-155B-4DCB-8EDA-706B1F3B86AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9231AE67-F0DA-44F7-AA58-633F28599A93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9231AE67-F0DA-44F7-AA58-633F28599A93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9231AE67-F0DA-44F7-AA58-633F28599A93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9231AE67-F0DA-44F7-AA58-633F28599A93}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
