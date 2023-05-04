@@ -1,69 +1,113 @@
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
+using Serilog;
+using Serilog.Enrichers.Span;
+using Serilog.Exceptions;
 
-var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
-builder.Services.AddStackExchangeRedisCache(x =>
+Log.Information("Starting up");
+
+try
 {
-    x.Configuration = builder.Configuration.GetConnectionString("redis");
-});
+    var builder = WebApplication.CreateBuilder(args);
 
-var app = builder.Build();
+    builder.Host.UseSerilog((context, loggerConfig) =>
+    {
+        loggerConfig
+            .Enrich.FromLogContext()
+            .Enrich.WithProperty("Application", builder.Environment.ApplicationName)
+            .Enrich.WithEnvironmentName()
+            .Enrich.WithExceptionDetails()
+            .Enrich.WithSpan()
+            .ReadFrom.Configuration(builder.Configuration)
+            .WriteTo.Console();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+        var seq = builder.Configuration.GetServiceUri("seq");
+        if (seq != null)
+        {
+            Log.Information($"Logging to Seq at: {seq.AbsoluteUri}");
 
-app.UseHttpsRedirection();
+            loggerConfig.WriteTo.Seq(seq.AbsoluteUri);
+        }
+    });
 
-var summaries = new[]
-{
+    // Add services to the container.
+    // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
+
+    builder.Services.AddStackExchangeRedisCache(x =>
+    {
+        x.Configuration = builder.Configuration.GetConnectionString("redis");
+    });
+
+    var app = builder.Build();
+
+    app.UseSerilogRequestLogging();
+
+    // Configure the HTTP request pipeline.
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI();
+    }
+
+    app.UseHttpsRedirection();
+
+    var summaries = new[]
+    {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
 };
 
-app.MapGet("/weatherforecast", async (IDistributedCache cache) =>
-{
-    var forecastJson = await cache.GetStringAsync("weather");
-
-    WeatherForecast[]? forecast;
-
-    if (forecastJson == null)
+    app.MapGet("/weatherforecast", async (IDistributedCache cache) =>
     {
-        forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
+        var forecastJson = await cache.GetStringAsync("weather");
 
-        forecastJson = JsonSerializer.Serialize(forecast);
+        WeatherForecast[]? forecast;
 
-        await cache.SetStringAsync("weather", forecastJson, new DistributedCacheEntryOptions
+        if (forecastJson == null)
         {
-            AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(5)
-        });
-    }
-    else
-    {
-        forecast = JsonSerializer.Deserialize<WeatherForecast[]>(forecastJson);
-    }
+            forecast = Enumerable.Range(1, 5).Select(index =>
+            new WeatherForecast
+            (
+                DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                Random.Shared.Next(-20, 55),
+                summaries[Random.Shared.Next(summaries.Length)]
+            ))
+            .ToArray();
 
-    return forecast;
-})
-.WithName("GetWeatherForecast")
-.WithOpenApi();
+            forecastJson = JsonSerializer.Serialize(forecast);
 
-app.Run();
+            await cache.SetStringAsync("weather", forecastJson, new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(5)
+            });
+        }
+        else
+        {
+            forecast = JsonSerializer.Deserialize<WeatherForecast[]>(forecastJson);
+        }
+
+        return forecast;
+    })
+    .WithName("GetWeatherForecast")
+    .WithOpenApi();
+
+    app.Run();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Unhandled exception occurred");
+}
+finally
+{
+    Log.Information("Shutdown complete");
+    Log.CloseAndFlush();
+}
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {

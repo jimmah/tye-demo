@@ -17,8 +17,8 @@ public class WeatherService
         _client = client;
     }
 
-    public async Task<WeatherForecast[]> GetWeatherForecastAsync()
+    public async Task<WeatherForecast[]?> GetWeatherForecastAsync()
     {
-        return await _client.GetFromJsonAsync<WeatherForecast[]>("/weatherforecast");
+        return await _client.GetFromJsonAsync<WeatherForecast[]>("/weatherforecast", _options);
     }
 }
