@@ -1,7 +1,14 @@
+using Weather.Frontend;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+builder.Services.AddHttpClient<WeatherService>(x =>
+{
+    x.BaseAddress = builder.Configuration.GetServiceUri("backend");
+});
 
 var app = builder.Build();
 
