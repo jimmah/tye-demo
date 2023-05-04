@@ -1,7 +1,11 @@
-using Weather.Frontend;
+using System.Diagnostics;
 using Serilog;
 using Serilog.Enrichers.Span;
 using Serilog.Exceptions;
+using Weather.Frontend;
+
+Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+Activity.ForceDefaultIdFormat = true;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()

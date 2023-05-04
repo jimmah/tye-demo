@@ -1,6 +1,7 @@
 extensions:
 - name: seq
   logPath: ./.logs
+- name: zipkin
 
 services:
 - name: frontend

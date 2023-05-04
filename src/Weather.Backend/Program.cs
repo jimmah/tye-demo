@@ -1,9 +1,12 @@
+using System.Diagnostics;
 using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using Serilog;
 using Serilog.Enrichers.Span;
 using Serilog.Exceptions;
 
+Activity.DefaultIdFormat = ActivityIdFormat.W3C;
+Activity.ForceDefaultIdFormat = true;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
