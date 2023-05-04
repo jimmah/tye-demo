@@ -1,3 +1,7 @@
+extensions:
+- name: seq
+  logPath: ./.logs
+
 services:
 - name: frontend
   project: src/Weather.Frontend/Weather.Frontend.csproj
