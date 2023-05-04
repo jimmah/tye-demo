@@ -21,14 +21,23 @@ Weather Forecast:
          </tr>
      </thead>
      <tbody>
-         @foreach (var forecast in @Model.Forecasts)
-         {
-             <tr>
-                 <td>@forecast.Date.ToShortDateString()</td>
-                 <td>@forecast.TemperatureC</td>
-                 <td>@forecast.TemperatureF</td>
-                 <td>@forecast.Summary</td>
-             </tr>
-         }
+        @if (@Model.Forecasts != null)
+        {
+          foreach (var forecast in @Model.Forecasts)
+          {
+            <tr>
+              <td>@forecast.Date.ToShortDateString()</td>
+              <td>@forecast.TemperatureC</td>
+              <td>@forecast.TemperatureF</td>
+              <td>@forecast.Summary</td>
+            </tr>
+          }
+        }
+        else
+        {
+          <tr>
+            <td colspan="4">No data</td>
+          </tr>
+        }
      </tbody>
  </table>
